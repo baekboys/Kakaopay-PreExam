@@ -1,17 +1,14 @@
 package com.kakaopay.card.service.payment;
 
-import com.kakaopay.card.common.PaymentIdGenerator;
+import com.kakaopay.card.common.ManagementIdGenerator;
 import com.kakaopay.card.common.PaymentToCardInfoData;
+import com.kakaopay.card.domain.PaymentType;
 import com.kakaopay.card.domain.cardinfo.CardInfo;
 import com.kakaopay.card.domain.cardinfo.CardInfoRepository;
 import com.kakaopay.card.domain.payment.Payment;
 import com.kakaopay.card.domain.payment.PaymentRepository;
-import com.kakaopay.card.domain.posts.Posts;
 import com.kakaopay.card.web.dto.PaymentRequestDto;
-import com.kakaopay.card.web.dto.PaymentResponseDto;
-import com.kakaopay.card.web.dto.PostsResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +34,8 @@ public class PaymentService {
         String installment  = requestDto.getInstallment();
         String vat = requestDto.getVat();
 
-        // 유니크한 카드번호로 부터 관리번호 20자리 채번
-        String paymentId = PaymentIdGenerator.getPaymentIdFromCardNum(cardnum);
+        // 결제타입이 결제(PAYMENT)이면서 유니크한 카드번호로 부터 관리번호 20자리 채번
+        String paymentId = ManagementIdGenerator.getManagementIdByPaymentTypeAndCardNum(PaymentType.PAYMENT, cardnum);
 
         //---------------------------------------------------------------------------
         // 결제정보 저장 프로세스

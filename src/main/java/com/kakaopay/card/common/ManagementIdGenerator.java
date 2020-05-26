@@ -1,8 +1,8 @@
 package com.kakaopay.card.common;
 
+import com.kakaopay.card.domain.PaymentType;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,22 +15,27 @@ import java.util.Random;
  * 2) 문자열 9999999999999999999999999999999999 : 34자리
  *   변환시 : SziYfCNzI8cTI2Qyohh 19자리
  *********************************************************************/
-public class PaymentIdGenerator {
+public class ManagementIdGenerator {
 
     private static final String fillerChar = "-";
     private static final int fillerSize = 20;
 
-    public static String getPaymentIdFromCardNum(String cardnum) {
-        String paymentId = "";
+    public static String getManagementIdByPaymentTypeAndCardNum(PaymentType paymentType, String cardnum) {
+        String managementId = "";
 
         // 숫자로 구성된 문자열을 조합하기 위해 SB생성
         StringBuilder sb = new StringBuilder();
 
 
-        // (1) 카드번호길이 2자리
-        sb.append(Integer.toString(cardnum.length()));
+        // (1) 결제유형(1 : 결제 PAYMENT, 2 : 취소  CANCEL)
+        String paymentTypeValue = paymentType.getTypeNum();
+        sb.append(paymentTypeValue);
 
-        // (2) 카드번호 10~16자리, 16자리 미만은 0으로 right padding
+        // (2) 카드번호길이의 뒷자리 (10~16자리 이므로 0~6만 나올 수 있음)
+        String cardLengthLastNum = Integer.toString(cardnum.length() % 10);
+        sb.append(cardLengthLastNum);
+
+        // (3) 카드번호 10~16자리, 16자리 미만은 0으로 right padding
         sb.append( StringUtils.rightPad(cardnum, 16, "0"));
 
         // (3) 시간(yyMMddhhmmssSS) 14자리
@@ -38,15 +43,16 @@ public class PaymentIdGenerator {
         sb.append(currentTime);
 
         // (4) 3자리 랜덤 숫자
-        sb.append(StringUtils.leftPad( Integer.toString(new Random().nextInt(1000)), 3, "0" ));
+        String random3num = Integer.toString(new Random().nextInt(1000));
+        sb.append(StringUtils.leftPad(random3num, 3, "0" ));
 
         // (5) 35자리의 숫자로 구성 된 문자열을 인코딩 => 최대 20자리의 문자열로 치환됨
         String base62str = getBase62From10(sb.toString());
 
         // (6) 20자리가 안되면 padding할 문자열을 추가하여 20자리로 만들어줌
-        paymentId = StringUtils.rightPad(base62str, fillerSize, fillerChar);
+        managementId = StringUtils.rightPad(base62str, fillerSize, fillerChar);
 
-        return paymentId;
+        return managementId;
     }
 
     private static final BigInteger RADIX = BigInteger.valueOf(62);

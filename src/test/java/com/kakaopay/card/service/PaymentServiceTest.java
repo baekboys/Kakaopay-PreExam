@@ -46,15 +46,18 @@ public class PaymentServiceTest {
         String amount = "110000";
         String vat = "10000";
 
-        //when
-        Payment payment = paymentService.save(PaymentRequestDto.builder()
+        PaymentRequestDto paymentRequestDto = PaymentRequestDto.builder()
                 .cardnum(cardnum)
                 .expired(expired)
                 .cvc(cvc)
                 .installment(installment)
                 .amount(amount)
                 .vat(vat)
-                .build());
+                .build()
+                ;
+
+        //when
+        Payment payment = paymentService.save(paymentRequestDto);
         List<Payment> paymentList = paymentRepository.findAll();
         List<CardInfo> cardInfoList = cardInfoRepository.findAll();
 
@@ -77,21 +80,20 @@ public class PaymentServiceTest {
         String amount = "13350000";
         String vat = "10000";
 
-        //when
-        Payment payment = paymentService.save(PaymentRequestDto.builder()
+        PaymentRequestDto paymentRequestDto = PaymentRequestDto.builder()
                 .cardnum(cardnum)
                 .expired(expired)
                 .cvc(cvc)
                 .installment(installment)
                 .amount(amount)
                 .vat(vat)
-                .build());
+                .build()
+                ;
+
+        //when
+        Payment payment = paymentService.save(paymentRequestDto);
         List<Payment> paymentList = paymentRepository.findAll();
         List<CardInfo> cardInfoList = cardInfoRepository.findAll();
-
-        System.out.println("==============================================");
-        System.out.println(cardInfoList.get(0).getData());
-        System.out.println("==============================================");
 
         //then
         Payment paymentGetObj = paymentList.get(0);
