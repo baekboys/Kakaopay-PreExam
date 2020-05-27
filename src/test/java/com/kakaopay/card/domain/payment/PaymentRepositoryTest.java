@@ -1,5 +1,6 @@
 package com.kakaopay.card.domain.payment;
 
+import com.kakaopay.card.domain.PaymentType;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,8 +26,13 @@ public class PaymentRepositoryTest {
     }
 
     @Test
-    public void paymentSave() {
+    public void paymentSaveTest() {
         //given
+        PaymentType paymentType = PaymentType.PAYMENT;
+
+        String paymentId = "XXXXXXXXXXXXXXXXXXXX";
+        String cancelId = "ZZZZZZZZZZZZZZZZZZZZ";
+
         String cardnum = "1234567890123456";
         String expired = "1125";
         String cvc = "777";
@@ -34,6 +41,9 @@ public class PaymentRepositoryTest {
         String vat = "10000";
 
         Payment paymentResult = paymentRepository.save(Payment.builder()
+                .paymentType(paymentType)
+                .paymentId(paymentId)
+                .cancelId(cancelId)
                 .cardnum(cardnum)
                 .expired(expired)
                 .cvc(cvc)
@@ -41,18 +51,63 @@ public class PaymentRepositoryTest {
                 .amount(amount)
                 .vat(vat)
                 .build());
-
-        System.out.println("paymentResult :" + paymentResult.getCardnum());
-
         //when
         List<Payment> paymentList = paymentRepository.findAll();
+        Payment paymentGetObj = paymentList.get(0);
 
         //then
-        Payment paymentGetObj = paymentList.get(0);
+        assertThat(paymentResult.getPaymentType()).isEqualTo(paymentType);
+        assertThat(paymentResult.getPaymentId()).isEqualTo(paymentId);
+        assertThat(paymentResult.getCancelId()).isEqualTo(cancelId);
         assertThat(paymentResult.getCardnum()).isEqualTo(cardnum);
         assertThat(paymentResult.getExpired()).isEqualTo(expired);
         assertThat(paymentResult.getCvc()).isEqualTo(cvc);
         assertThat(paymentResult.getInstallment()).isEqualTo(installment);
-        assertThat(paymentResult.getVat()).isEqualTo(vat);
+        assertThat(Long.toString(paymentResult.getAmount())).isEqualTo(amount);
+        assertThat(Long.toString(paymentResult.getVat())).isEqualTo(vat);
+    }
+
+    @Test
+    public void paymentSearchTest() {
+
+        //given
+        PaymentType paymentType = PaymentType.PAYMENT;
+
+        String paymentId = "XXXXXXXXXXXXXXXXXXXX";
+        String cancelId = "ZZZZZZZZZZZZZZZZZZZZ";
+
+        String cardnum = "1234567890123456";
+        String expired = "1125";
+        String cvc = "777";
+        String installment = "0";
+        String amount = "100000";
+        String vat = "10000";
+
+        String managementId1 = "ZZZZZZZZZZZZZZZZZZZZ";
+        String managementId2 = "XXXXXXXXXXXXXXXXXXXX";
+
+
+        Payment paymentResult = paymentRepository.save(Payment.builder()
+                .paymentType(paymentType)
+                .paymentId(paymentId)
+                .cancelId(cancelId)
+                .cardnum(cardnum)
+                .expired(expired)
+                .cvc(cvc)
+                .installment(installment)
+                .amount(amount)
+                .vat(vat)
+                .build());
+        //when
+        Optional<Payment> paymentResult1 = paymentRepository.findByPaymentId(managementId1);
+        Optional<Payment> paymentResult2 = paymentRepository.findByPaymentId(managementId2);
+        Optional<Payment> paymentResult3 = paymentRepository.findByCancelId(managementId1);
+        Optional<Payment> paymentResult4 = paymentRepository.findByCancelId(managementId2);
+
+        //then
+        assertThat(paymentResult1.isPresent()).isFalse();
+        assertThat(paymentResult2.isPresent()).isTrue();
+        assertThat(paymentResult3.isPresent()).isTrue();
+        assertThat(paymentResult4.isPresent()).isFalse();
     }
 }

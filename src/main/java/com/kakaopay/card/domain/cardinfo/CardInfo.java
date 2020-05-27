@@ -17,15 +17,15 @@ public class CardInfo extends BaseTimeEntity {
     // 관리번호
     @Id
     @Column(length = 20, nullable = false)
-    String paymentId;
+    String managementId;
 
     // 카드사 저장 데이터
     @Column(length = 450, nullable = false)
     String data;
 
     @Builder
-    public CardInfo(String paymentId, String data) {
-        this.paymentId = paymentId;
+    public CardInfo(String managementId, String data) {
+        this.managementId = managementId;
         this.data = data;
     }
 }

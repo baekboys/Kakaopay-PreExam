@@ -8,11 +8,17 @@ import org.apache.commons.lang3.StringUtils;
 @Getter
 @NoArgsConstructor
 public class PaymentRequestDto implements RequestDto {
+    // 카드번호
     private String cardnum;
+    // 유효기간
     private String expired;
+    // CVCV
     private String cvc;
+    // 할부
     private String installment;
+    // 결제금액
     private String amount;
+    // 부가가치세
     private String vat;
 
     @Builder
@@ -25,7 +31,6 @@ public class PaymentRequestDto implements RequestDto {
         this.vat = vat;
     }
 
-
     @Override
     public boolean isValidate() {
 
@@ -33,19 +38,20 @@ public class PaymentRequestDto implements RequestDto {
             return false;
         }
 
-        if( StringUtils.isEmpty(expired) || expired.length() != 4 || ! StringUtils.isNumeric(expired) ) {
+        if( StringUtils.isEmpty(expired) || expired.length() != 4 || !StringUtils.isNumeric(expired) ) {
             return false;
         }
 
-        if( StringUtils.isEmpty(cvc) || cvc.length() != 3 || ! StringUtils.isNumeric(cvc) ) {
+        if( StringUtils.isEmpty(cvc) || cvc.length() != 3 || !StringUtils.isNumeric(cvc) ) {
             return false;
         }
 
-        if( StringUtils.isEmpty(installment) || !(installment.length() >= 1 && installment.length() <= 2) || ! StringUtils.isNumeric(installment) ) {
+        if( StringUtils.isEmpty(installment) || !StringUtils.isNumeric(installment) || !(installment.length() >= 1 && installment.length() <= 2)  ) {
             return false;
         }
 
-        if( StringUtils.isEmpty(amount) || amount.length() > 10 || ! StringUtils.isNumeric(amount) ) {
+
+        if( StringUtils.isEmpty(amount) || !StringUtils.isNumeric(amount) || !( Long.valueOf(amount)  >= 100L && Long.valueOf(amount) <= 1000000000L ) ) {
             return false;
         }
 

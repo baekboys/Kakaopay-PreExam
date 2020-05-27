@@ -1,6 +1,5 @@
 package com.kakaopay.card.web.dto;
 
-import com.kakaopay.card.common.encrypt.KISASeedEncryptor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;

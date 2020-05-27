@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class KISASeedEncryptorTest {
+public class KISASeedNumericEncryptorTest {
 
     @Test
     public void paymentSave() {
@@ -17,8 +17,8 @@ public class KISASeedEncryptorTest {
         String text = "KakaopayPreExam";
 
         //when
-        String enc_text = KISASeedEncryptor.encrypt(text);
-        String dec_text = KISASeedEncryptor.decrypt(enc_text);
+        String enc_text = KISASeedNumericEncryptor.encrypt(text);
+        String dec_text = KISASeedNumericEncryptor.decrypt(enc_text);
 
         //then
         assertThat(text).isNotEqualTo(enc_text);

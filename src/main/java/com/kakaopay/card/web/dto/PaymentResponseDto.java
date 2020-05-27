@@ -3,19 +3,21 @@ package com.kakaopay.card.web.dto;
 import com.kakaopay.card.domain.payment.Payment;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @NoArgsConstructor
 public class PaymentResponseDto extends ResponseDto {
-    private String paymentId = "";
-    private LocalDateTime paymentDate;
+    // 관리번호
+    private String managementId = "";
+    // 거래시간
+    private String transactionTime = "";
 
     @Builder
-    public PaymentResponseDto(Payment payment) {
+    public PaymentResponseDto(String managementId, String transactionTime) {
         super();
-        this.paymentId = payment.getPaymentId();
-        this.paymentDate = payment.getCreatedDate();
+        this.managementId = managementId;
+        this.transactionTime = transactionTime;
     }
 }
 

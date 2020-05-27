@@ -1,14 +1,12 @@
 package com.kakaopay.card.domain.payment;
 
-import com.kakaopay.card.common.encrypt.KISASeedEncryptor;
 import com.kakaopay.card.domain.BaseTimeEntity;
+import com.kakaopay.card.domain.PaymentType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 
 @Getter
 @NoArgsConstructor
@@ -20,9 +18,17 @@ public class Payment extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 관리번호
+    // 결제타입 (결제 PAYMENT, 취소 CALCEL)
+    @Column(nullable = false)
+    private PaymentType paymentType;
+
+    // 결제관리번호
     @Column(length = 20, nullable = false)
     private String paymentId;
+
+    // 취소관리번호
+    @Column(length = 20)
+    private String cancelId;
 
     // 카드번호
     @Column(nullable = false)
@@ -49,28 +55,15 @@ public class Payment extends BaseTimeEntity {
     private long vat;
 
     @Builder
-    public Payment(String paymentId, String cardnum, String expired, String cvc, String installment, String amount, String vat) {
+    public Payment(PaymentType paymentType, String paymentId, String cancelId, String cardnum, String expired, String cvc, String installment, String amount, String vat) {
+        this.paymentType = paymentType;
         this.paymentId = paymentId;
+        this.cancelId = cancelId;
         this.cardnum = cardnum;
         this.expired = expired;
         this.cvc = cvc;
         this.installment = installment;
         this.amount = Long.valueOf(amount);
         this.vat = Long.valueOf(vat);
-    }
-
-    // 암호화된 카드번호, 유효기간, CVC 리턴 =>  "카드번호,유효기간,CVC" 문자열을 암호화하여 리턴
-    public String getEncryptInfo() {
-        String encResult = "";
-
-        // 카드번호, 유효기간, CVC 중 하나라도 비어있으면 비어있는 문자열로 리턴
-        if(StringUtils.isEmpty(this.cardnum) || StringUtils.isEmpty(this.expired) || StringUtils.isEmpty(this.cvc)) {
-            return encResult;
-        }
-
-        String plainInfo = this.cardnum + "," + this.expired + "," + this.cvc;
-        encResult = KISASeedEncryptor.encrypt(plainInfo);
-
-        return encResult;
     }
 }

@@ -1,5 +1,7 @@
 package com.kakaopay.card.web;
 
+import com.kakaopay.card.Exception.BizException;
+import com.kakaopay.card.Exception.BizExceptionType;
 import com.kakaopay.card.common.ManagementIdGenerator;
 import com.kakaopay.card.domain.PaymentType;
 import com.kakaopay.card.domain.payment.Payment;
@@ -28,7 +30,19 @@ public class ApiController {
     }
 
     @PostMapping(value="/api/v1/payment")
-    public PaymentResponseDto payment(@RequestBody PaymentRequestDto requestDto) {
+    public PaymentResponseDto payment(@RequestBody PaymentRequestDto requestDto) throws BizException {
+
+        if(!requestDto.isValidate()) {
+            throw new BizException(BizExceptionType.INVALID_PARAM);
+        }
+
+        PaymentResponseDto paymentResponseDto  = paymentService.save(requestDto);
+
+        return paymentResponseDto;
+    }
+
+    /*@GetMapping(value="/api/v1/search")
+    public PaymentResponseDto searchFromManagementId(@RequestBody SearchReqeustDto requestDto) {
 
         if(!requestDto.isValidate()) {
             PaymentResponseDto errorPaymentResponseDto = new PaymentResponseDto();
@@ -44,5 +58,5 @@ public class ApiController {
                 .build();
 
         return paymentResponseDto;
-    }
+    }*/
 }

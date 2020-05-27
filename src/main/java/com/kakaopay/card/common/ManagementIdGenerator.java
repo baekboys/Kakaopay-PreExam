@@ -39,7 +39,7 @@ public class ManagementIdGenerator {
         sb.append( StringUtils.rightPad(cardnum, 16, "0"));
 
         // (3) 시간(yyMMddhhmmssSS) 14자리
-        String currentTime = DateTimeFormatter.ofPattern("yyMMddhhmmssSS").format(LocalDateTime.now());
+        String currentTime = DateTimeFormatter.ofPattern("yyMMddHHmmssSS").format(LocalDateTime.now());
         sb.append(currentTime);
 
         // (4) 3자리 랜덤 숫자
