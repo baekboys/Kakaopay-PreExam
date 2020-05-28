@@ -20,6 +20,17 @@ group 'com.kakaopay.card'
 version '1.0.4-SNAPSHOT-'+new Date().format("yyyyMMddHHmmss")
 sourceCompatibility = 1.8
 
+jar {
+    manifest {
+        attributes  'Title': 'KakaoPreExam', 'Version': '1.0', 'Main-Class': 'com.kakaopay.card.Application'
+    }
+    archiveName 'KakaoPreExam.jar'
+    dependsOn configurations.runtime
+    from {
+        configurations.compile.collect {it.isDirectory()? it: zipTree(it)}
+    }
+}
+
 repositories {
     mavenCentral()
     jcenter()
@@ -37,9 +48,4 @@ dependencies {
     annotationProcessor('org.projectlombok:lombok')
 
     compile('org.apache.commons:commons-lang3:3.10')
-
-
-    /*compile('com.fasterxml.jackson.core:jackson-core')
-    compile('com.fasterxml.jackson.core:jackson-annotations')
-    compile('com.fasterxml.jackson.core:jackson-databind')*/
 }
