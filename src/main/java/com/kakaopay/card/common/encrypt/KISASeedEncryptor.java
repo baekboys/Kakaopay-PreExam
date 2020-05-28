@@ -9,7 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class KISASeedNumericEncryptor {
+public class KISASeedEncryptor {
 
     private final static String CHARSET = "utf-8";
     private final static String PBUserKey = "kakaopaypreexam!";
@@ -18,12 +18,11 @@ public class KISASeedNumericEncryptor {
     private final static byte pbUserKey[] = PBUserKey.getBytes();
     private final static byte bszIV[] = DEFAULT_IV.getBytes();
 
-    public static String encrypt(String plainStr) throws BizException {
+    // 카드정보 구분자 : ,로 구분
+    private final static String cardInfoSeparator = ",";
 
-        // 숫자만 구성된 경우 암호화 된 데이터가 아니므로 파라미터 그대로 리턴
-        if(!StringUtils.isNumeric(plainStr)) {
-            return plainStr;
-        }
+    // 암호화
+    public static String encrypt(String plainStr) throws BizException {
 
         byte[] encBytes = null;
 
@@ -44,12 +43,16 @@ public class KISASeedNumericEncryptor {
         return encStr;
     }
 
-    public static String decrypt(String encStr) throws BizException {
+    // 카드번호, 유효기간, cvc값을 받아 구분자를 주고 암호화
+    public static String encryptCardInfo(String cardNum, String expired, String cvc) {
+        String plainInfo = cardNum + cardInfoSeparator + expired + cardInfoSeparator + cvc;
+        String encCardInfo = encrypt(plainInfo);
 
-        // 숫자만 구성된 경우 암호화 된 데이터가 아니므로 파라미터 그대로 리턴
-        if(StringUtils.isNumeric(encStr)) {
-            return encStr;
-        }
+        return encCardInfo;
+    }
+
+    // 복호화
+    public static String decrypt(String encStr) throws BizException {
 
         byte[] enc = Base64.getDecoder().decode(encStr);
 

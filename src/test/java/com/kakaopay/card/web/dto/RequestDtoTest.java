@@ -33,7 +33,7 @@ public class RequestDtoTest {
                 ;
 
         //then
-        assertThat(paymentRequestDto.isValidate()).isFalse();
+        assertThat(paymentRequestDto.isValid()).isFalse();
     }
 
     @Test
@@ -58,7 +58,7 @@ public class RequestDtoTest {
                 ;
 
         //then
-        assertThat(paymentRequestDto.isValidate()).isTrue();
+        assertThat(paymentRequestDto.isValid()).isTrue();
     }
 
     @Test
@@ -83,7 +83,7 @@ public class RequestDtoTest {
                 ;
 
         //then
-        assertThat(paymentRequestDto.isValidate()).isFalse();
+        assertThat(paymentRequestDto.isValid()).isFalse();
     }
 
     @Test
@@ -108,6 +108,6 @@ public class RequestDtoTest {
                 ;
 
         //then
-        assertThat(paymentRequestDto.isValidate()).isFalse();
+        assertThat(paymentRequestDto.isValid()).isFalse();
     }
 }

@@ -42,7 +42,7 @@ public class Payment extends BaseTimeEntity {
     @Column(nullable = false)
     private String cvc;
 
-    // 할부개월(0이면 일시불)
+    // 할부개월(0이면 일시불, 취소건은 00이면 일시불)
     @Column(length = 2, nullable = false)
     private String installment;
 

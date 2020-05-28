@@ -33,8 +33,13 @@ dependencies {
     compile('org.springframework.session:spring-session-jdbc')
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
-    compile('org.apache.commons:commons-lang3:3.10')
-
     compileOnly('org.projectlombok:lombok')
     annotationProcessor('org.projectlombok:lombok')
+
+    compile('org.apache.commons:commons-lang3:3.10')
+
+
+    /*compile('com.fasterxml.jackson.core:jackson-core')
+    compile('com.fasterxml.jackson.core:jackson-annotations')
+    compile('com.fasterxml.jackson.core:jackson-databind')*/
 }

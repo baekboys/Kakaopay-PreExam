@@ -1,14 +1,9 @@
 package com.kakaopay.card.web.dto;
 
-import com.kakaopay.card.domain.payment.Payment;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.format.DateTimeFormatter;
 
 @Getter
-@NoArgsConstructor
 public class SearchResponseDto extends ResponseDto {
     // 관리번호
     private String managementId = "";
@@ -31,8 +26,8 @@ public class SearchResponseDto extends ResponseDto {
     private String transactionTime = "";
 
     @Builder
-    public SearchResponseDto(String managementId, String cardNum, String expired, String cvc, String paymentType, String amount, String vat, String transactionTime) {
-        super();
+    public SearchResponseDto(String errorCode, String errorMessage, String managementId, String cardNum, String expired, String cvc, String paymentType, String amount, String vat, String transactionTime) {
+        super(errorCode,errorMessage);
         this.managementId = managementId;
         this.cardNum = cardNum;
         this.expired = expired;

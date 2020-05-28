@@ -1,5 +1,8 @@
 package com.kakaopay.card.web.dto;
 
+import com.kakaopay.card.Exception.BizException;
+import com.kakaopay.card.Exception.BizExceptionType;
+import com.kakaopay.card.Exception.PaymentBizException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,31 +35,44 @@ public class PaymentRequestDto implements RequestDto {
     }
 
     @Override
-    public boolean isValidate() {
+    public boolean isValid() throws PaymentBizException {
+
+        boolean isValid = true;
 
         if( StringUtils.isEmpty(cardnum) || !(cardnum.length() >= 10 && cardnum.length() <= 16) || !StringUtils.isNumeric(cardnum)  ) {
-            return false;
+            isValid = false;
+            throw new PaymentBizException(BizExceptionType.INVALID_CARD_NUM);
         }
 
-        if( StringUtils.isEmpty(expired) || expired.length() != 4 || !StringUtils.isNumeric(expired) ) {
-            return false;
+        if( StringUtils.isEmpty(expired) || expired.length() != 4 || !StringUtils.isNumeric(expired) || !( Integer.valueOf(expired.substring(0, 2))  >= 1 && Integer.valueOf(expired.substring(0, 2)) <= 12 ) ) {
+            isValid = false;
+            throw new PaymentBizException(BizExceptionType.INVALID_EXPIERD_NUM);
         }
 
         if( StringUtils.isEmpty(cvc) || cvc.length() != 3 || !StringUtils.isNumeric(cvc) ) {
-            return false;
+            isValid = false;
+            throw new PaymentBizException(BizExceptionType.INVALID_CVC_NUM);
         }
 
-        if( StringUtils.isEmpty(installment) || !StringUtils.isNumeric(installment) || !(installment.length() >= 1 && installment.length() <= 2)  ) {
-            return false;
+        if( StringUtils.isEmpty(installment) || !StringUtils.isNumeric(installment) || !( Integer.valueOf(installment)  >= 0 && Integer.valueOf(installment) <= 12 )  ) {
+            isValid = false;
+            throw new PaymentBizException(BizExceptionType.INVALID_INSTALL_NUM);
         }
 
 
         if( StringUtils.isEmpty(amount) || !StringUtils.isNumeric(amount) || !( Long.valueOf(amount)  >= 100L && Long.valueOf(amount) <= 1000000000L ) ) {
-            return false;
+            isValid = false;
+            throw new PaymentBizException(BizExceptionType.INVALID_AMOUNT_NUM);
+        }
+
+        if( !( Long.valueOf(amount)  >= 100L && Long.valueOf(amount) <= 1000000000L ) ) {
+            isValid = false;
+            throw new PaymentBizException(BizExceptionType.INVALID_AMOUNT_EXCEED);
         }
 
         if( !StringUtils.isEmpty(vat) && ( vat.length() > 10 || ! StringUtils.isNumeric(vat) ) ) {
-            return false;
+            isValid = false;
+            throw new PaymentBizException(BizExceptionType.INVALID_VAT_NUM);
         }
 
         if( !StringUtils.isEmpty(amount) && !StringUtils.isEmpty(vat) ) {
@@ -64,11 +80,12 @@ public class PaymentRequestDto implements RequestDto {
             long requestVat = Long.valueOf(vat);
 
             if(requestVat > requestAmount) {
-                return false;
+                isValid = false;
+                throw new PaymentBizException(BizExceptionType.INVALID_VAT_EXCEED);
             }
         }
 
-        return true;
+        return isValid;
     }
 }
 
