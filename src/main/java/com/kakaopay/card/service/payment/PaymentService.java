@@ -243,7 +243,7 @@ public class PaymentService {
         Optional<Payment> cancelPayment = paymentRepository.findByPaymentIdAndPaymentType(managementId, PaymentType.CANCEL);
         // 취소건이 있으면 더이상 진행 불가
         if(cancelPayment.isPresent()) {
-            new CancelBizException(BizExceptionType.CANCEL_FINISHED);
+            throw new CancelBizException(BizExceptionType.CANCEL_FINISHED);
         }
 
         //---------------------------------------------------------------------------
@@ -251,21 +251,21 @@ public class PaymentService {
         //---------------------------------------------------------------------------
         // (1) 취소관련 데이터 조회
         // 취소금액
-        Long cancelAmount = Long.valueOf(amount);
+        long cancelAmount = Long.valueOf(amount);
         // 취소 부가가치세 (만약 비어있으면 결제건의 부가가치세로 세팅)
-        Long cancelVat = StringUtils.isEmpty(vat) ? searchPayment.getVat() : Long.valueOf(vat);
+        long cancelVat = StringUtils.isEmpty(vat) ? searchPayment.getVat() : Long.valueOf(vat);
         // 결제금액
-        Long paymentAmount = searchPayment.getAmount();
+        long paymentAmount = searchPayment.getAmount();
         // 결제 부가가치세
-        Long paymentVat = searchPayment.getVat();
+        long paymentVat = searchPayment.getVat();
 
         // (2) 취소가능금액 체크
-        if(cancelAmount == 0 || cancelAmount > paymentAmount) {
+        if( cancelAmount == 0L || cancelAmount > paymentAmount || cancelAmount != paymentAmount ) {
             throw new CancelBizException(BizExceptionType.CANCEL_NOT_AMOUCNT);
         }
 
         // (3) 취소가능 부가가치세 체크
-        if(cancelVat > paymentVat) {
+        if( cancelVat > paymentVat || cancelVat != paymentVat ) {
             throw new CancelBizException(BizExceptionType.CANCEL_NOT_VAT);
         }
 
@@ -299,9 +299,9 @@ public class PaymentService {
                 .cardnum(searchPayment.getCardnum()) // 암호화된 카드번호
                 .expired(searchPayment.getExpired()) // 암호화된 유효기간
                 .cvc(searchPayment.getCvc()) // 암호화된 CVC
-                .amount(amount)
                 .installment(cancelInstallment)
-                .vat(vat)
+                .amount(amount)
+                .vat(Long.toString(cancelVat))
                 .build()
                 ;
         // 취소정보 저장
