@@ -10,6 +10,7 @@
 ```
 - 프레임웍 : SpringBoot 
 - 언어 : Java 1.8.
+- Build : Gradle 6.1
 - IDE : Intellij COMMUNITY 2020.1
 ```
 
