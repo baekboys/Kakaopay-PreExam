@@ -9,6 +9,7 @@ public class CalcUtil {
     // vat : amount / 11
     private static final BigDecimal divideNum = new BigDecimal("11");
 
+    // 결제/취소 금액으로부터 부가가치세 구하기
     public static String getVatFromAmount(String amount) {
 
         BigDecimal inputBigDeciaml = new BigDecimal(amount);

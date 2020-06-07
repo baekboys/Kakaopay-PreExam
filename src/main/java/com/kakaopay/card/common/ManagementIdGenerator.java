@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 /**********************************************************************
- * 62진법 인코딩을 하여 숫자형 문자열을 길이가 짧아지는 문자열로 변환
+ * 62진법(0~9, a~z, A~Z, 총 62개의 문자) 인코딩을 하여 숫자형 문자열을 길이가 짧아지는 문자열로 변환
  * 1) 문자열 99999999999999999999999999999999999 : 35자리
  *   변환시 : 8NH3IwfZL7k4Z6stxUMT 20자리
  * 2) 문자열 9999999999999999999999999999999999 : 34자리
@@ -76,7 +76,7 @@ public class ManagementIdGenerator {
      *
      * @return the same number, in base 62
      */
-    public static String getBase62From10(String number) {
+    private static String getBase62From10(String number) {
         char[] buf = new char[number.length()];
         int charPos = number.length() - 1;
 

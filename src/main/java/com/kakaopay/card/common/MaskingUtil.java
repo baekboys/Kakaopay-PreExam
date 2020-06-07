@@ -10,6 +10,7 @@ public class MaskingUtil {
 
     private static final char maskingChar = '*';
 
+    // 카드번호로부터 앞 6자리, 뒤 3자리를 제외한 *로 마스킹처리
     public static String getMaskingCardNum(String cardNum) throws BizException {
         // 카드번호 전체길이
         int cardNumLength = cardNum.length();
