@@ -17,18 +17,14 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 group 'com.kakaopay.card'
-version '1.0.4-SNAPSHOT-'+new Date().format("yyyyMMddHHmmss")
+version '1.0-SNAPSHOT-'+new Date().format("yyyyMMdd")
 sourceCompatibility = 1.8
 
-jar {
+bootJar {
     manifest {
-        attributes  'Title': 'KakaoPreExam', 'Version': '1.0', 'Main-Class': 'com.kakaopay.card.Application'
+        attributes 'Start-Class': 'com.kakaopay.card.Application'
     }
     archiveName 'KakaoPreExam.jar'
-    dependsOn configurations.runtime
-    from {
-        configurations.compile.collect {it.isDirectory()? it: zipTree(it)}
-    }
 }
 
 repositories {

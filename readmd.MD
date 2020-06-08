@@ -8,8 +8,8 @@
 
 ### 개발환경
 ```
-- 프레임웍 : SpringBoot 
-- 언어 : Java 1.8.
+- Framework : SpringBoot 
+- Language : Java 1.8.
 - Build : Gradle 6.1
 - IDE : Intellij COMMUNITY 2020.1
 ```
@@ -25,14 +25,36 @@ com.h2database:h2 |
 org.projectlombok:lombok |
 org.apache.commons:commons-lang3 | 3.10
 
-### 기동방법
-``` bash
-# Using terminal
-./gradlew bootRun
 
-# Using IntelliJ
-1. Sync gradle
-2. Run Application
+###  Gradle Build at IntelliJ 
+``` bash
+1. 좌측상단의 Grade 탭 클릭
+2. Run Configurations > KakaopayPreExam > 더블클릭 또는 오른쪽버튼 누르고 Run 실행 
+```
+
+###  Gradle Build at Windows
+``` bash
+1. 환경변수에 JAVA를 위한 JAVA_HOME과 Path 설정
+   JAVA_HOME = C:\Program Files\Java\jdk1.8.0_241
+   Path = C:\Program Files\Java\jdk1.8.0_241\bin
+2. 환경변수에 Gradle을 위한 Path 설정
+   Path = D:\Programming\gradle-6.5\bin
+3. 터미널창에 Build 실행
+   > gradlew.bat boorjar 
+4. build\libs\KakaoPreExam.jar 파일 생성확인
+```
+
+###  Gradle Build at linux
+``` bash
+# ./gradlew boorjar 
+```
+
+### Jar Run 
+``` bash
+1. IntelliJ
+   Application.java 파일 열고, 좌측 녹색버튼 Run 'Application.main()' 실행 
+2. terminal
+   # java -jar KakaoPreExam.jar
 ```
 
 ### API 상세
