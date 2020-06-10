@@ -8,10 +8,14 @@
 
 ### 개발환경
 ```
-- Framework : SpringBoot 
 - Language : Java 1.8.
-- Build : Gradle 6.1
+  익숙한 언어이며 웹서비스에 다양한 기능을 포함하고 있으며 Spring, Springboot와 같은 많이 사용하는 프레임웍이 있어서 선택
+- Framework : SpringBoot 
+  spring과 embbaded tombat이 내장되어 있어 별도의 WAS가 필요없으며 빠르게 REST API 개발이 빠르게가능
 - IDE : Intellij COMMUNITY 2020.1
+  Eclipse를 오래 사용하였지만 IntelliJ가 속도도 빠르며 추천기능과 리펙토링, 디버깅이 편리하여 사용하기로 함
+- Build : Gradle 6.1
+  maven의 xml에 비하여 직관적이며, linux/windows에서도 쉽게 빌드가 가능하고 Groovy 언어 기반이라 분기처리가 가능하다는 장점이 있어서 선택
 ```
 
 ### Dependencies
