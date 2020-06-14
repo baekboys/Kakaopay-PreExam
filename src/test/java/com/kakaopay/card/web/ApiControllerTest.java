@@ -117,6 +117,23 @@ public class ApiControllerTest {
     }
 
     @Test
+    public void invalidMethodTest() throws Exception {
+
+        //given
+        String paymentUrl = "http://localhost:" + port + "/api/v1/payment";
+        String cancelUrl = "http://localhost:" + port + "/api/v1/cancel";
+        String searchUrl = "http://localhost:" + port + "/api/v1/search";
+
+
+        //given
+        ResponseEntity<PaymentResponseDto> paymentResponseDtoResponseEntity = restTemplate.getForEntity(paymentUrl, PaymentResponseDto.class);
+
+        // then
+        assertThat(paymentResponseDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(paymentResponseDtoResponseEntity.getBody().getErrorCode()).isEqualTo(BizExceptionType.HTTP_METHOD_ERROR.getCode());
+    }
+
+    @Test
     public void invlidCardNumTest() throws Exception {
         //given
         PaymentRequestDto paymentRequestDto = this.invalidPaymentRequestDto9;

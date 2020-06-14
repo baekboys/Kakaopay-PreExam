@@ -7,6 +7,10 @@ public enum BizExceptionType {
 
     BASIC_ERROR("000", "에러가 발생하였습니다."),
 
+    HTTP_METHOD_ERROR("001", "허용하지 않는 메소드입니다."),
+    MEDIA_TYPE_ERROR("002", "허용하지 않는 MEDIA_TYPE입니다. JSON만 지원합니다."),
+    MSG_NOT_READ_ERROR("003", "부정확한 JSON 형식 입니다."),
+
     INVALID_PARAM("100", "부정확한 파라미터입니다."),
     INVALID_CARD_NUM("101", "부정확한 카드번호입니다."),
     INVALID_EXPIERD_NUM("102", "부정확한 유효기간입니다."),

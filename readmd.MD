@@ -14,20 +14,20 @@
   spring과 embbaded tombat이 내장되어 있어 별도의 WAS가 필요없으며 빠르게 REST API 개발이 빠르게가능
 - IDE : Intellij COMMUNITY 2020.1
   Eclipse를 오래 사용하였지만 IntelliJ가 속도도 빠르며 추천기능과 리펙토링, 디버깅이 편리하여 사용하기로 함
-- Build : Gradle 6.1
+- Build : Gradle 6.5
   maven의 xml에 비하여 직관적이며, linux/windows에서도 쉽게 빌드가 가능하고 Groovy 언어 기반이라 분기처리가 가능하다는 장점이 있어서 선택
 ```
 
 ### Dependencies
-Dependence         |Version
--------------------|-------
+Dependence         |Version        | Description
+-------------------|--------------|-------------
 |
-spring-boot       |2.1.7.RELEASE
-spring-boot-starter-data-jpa |
-spring-boot-starter-web |
-com.h2database:h2 |
-org.projectlombok:lombok |
-org.apache.commons:commons-lang3 | 3.10
+spring-boot       | 2.1.7.RELEASE | Spring boot
+spring-boot-starter-data-jpa | 2.1.7.RELEASE | Spring boot
+spring-boot-starter-web | 2.1.7.RELEASE | Spring boot
+com.h2database:h2 | 1.4.200 | in memory db
+org.projectlombok:lombok | 1.18.12 | getter, setter, construction, bulider ...
+org.apache.commons:commons-lang3 | 3.10 | String Util (nvl, isNull, is Numeric ...)
 
 
 ###  Gradle Build at IntelliJ 
@@ -53,7 +53,7 @@ org.apache.commons:commons-lang3 | 3.10
 # ./gradlew boorjar 
 ```
 
-### Jar Run 
+### Run 
 ``` bash
 1. IntelliJ
    Application.java 파일 열고, 좌측 녹색버튼 Run 'Application.main()' 실행 
@@ -62,11 +62,11 @@ org.apache.commons:commons-lang3 | 3.10
 ```
 
 ### API 상세
-구분 |API | request|response
--------------------|-------| 
-1. 결제 |  PUT /api/v1/payment | cardnum, expired,  cvc, installment,  amount, vat(optional)  | managementId, transactionTime, errorCode, errorMessage |
-2. 결제취소 | POST /api/v1/cancel | managementId, amount, vat(optional) |  managementId, transactionTime, errorCode, errorMessage  | 
-3. 데이터 조회 | GET /api/v1/search/{managementId} | managementId | managementId, cardNum, expired, cvc, paymentType, amount, vat, transactionTime, errorCode, errorMessage  |
+구분 | API | request|response
+-------------------|-------------------|-------------------|-------------------|
+1. 결제 |  PUT /api/v1/payment | cardnum, expired,  cvc, installment,  amount, vat(optional)  | errorCode, errorMessage, managementId, transactionTime |
+2. 결제취소 | POST /api/v1/cancel | managementId, amount, vat(optional) |  errorCode, errorMessage, managementId, transactionTime  | 
+3. 데이터 조회 | GET /api/v1/search/{managementId} | managementId | errorCode, errorMessage, managementId, cardNum, expired, cvc, paymentType, amount, vat, transactionTime |
 
 ### 문제해결
 ####1. 관리번호
@@ -79,10 +79,12 @@ org.apache.commons:commons-lang3 | 3.10
 
 ####2. 암복호화
 - 암복호화를 직접 구현하기에는 많은 시간과 노력이 소요 되는 것으로 판단
-- 인터넷진흥원에서 개발한 SEED를 사용하기로 함
+- 인터넷진흥원에서 개발한 SEED CBC 를 사용하기로 함
   SEED는 전자상거래, 금융, 무선통신 등에서 전송되는 개인정보와 같은 중요한 정보를 보호하기 위해 1999년 2월 한국인터넷진흥 원과 국내 암호전문가들이 순수 국내기술로 개발한 128비트 블록 암호 알고리즘
-- 출처 : https://seed.kisa.or.kr/kisa/Board/17/detailView.do
-- 사용이유 : 금융사 간 데이터를 주고 받는 과정에서 SEED를 이용해본 경험이 있고, 참고할 자료가 많기에 채택
+  SEED는 128비트의 암⋅복호화키를 이용하여 임의의 길이를 갖는 입력 메시지를 128비트의 블록단위로 처리하는 128비트 블록암호 알고리즘이다. 따라서 임의의 길이를 가지는 평문 메시지를 128비트씩 블록단위로 나누어 암호화하여 암호문을 생성
+  CBC(Cipher Block Chaining) 모드는 동일한 평문 블록과 암호문 블록 쌍이 발생하지 않도록 전 단계의 암․복호화 결과가 현 단계에 영향을 주는 운영모드
+  출처 : https://seed.kisa.or.kr/kisa/Board/17/detailView.do
+- 사용이유 : 금융사 간 데이터를 주고 받는 과정에서 SEED를 이용해본 경험이 있고, 참고할 자료가 많기에 채택, 블럭단위 암호화방식이므로 스트림 암호화보다 속도면에서 유리
 - KISASeedEncryptor.java에 구현
 
 ### 테이블설계

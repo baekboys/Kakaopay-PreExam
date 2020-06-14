@@ -1,12 +1,16 @@
 package com.kakaopay.card.web;
 
-import com.kakaopay.card.Exception.*;
+import com.kakaopay.card.Exception.BizExceptionType;
+import com.kakaopay.card.Exception.CancelBizException;
+import com.kakaopay.card.Exception.PaymentBizException;
+import com.kakaopay.card.Exception.SearchBizException;
 import com.kakaopay.card.service.payment.PaymentService;
 import com.kakaopay.card.web.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @RestController
 public class ApiController {
@@ -18,7 +22,7 @@ public class ApiController {
      * @param paymentRequestDto
      * @return
      ****************************************************/
-    @PutMapping(value="/api/v1/payment")
+    @PutMapping(value="/payment")
     public PaymentResponseDto payment(@RequestBody PaymentRequestDto paymentRequestDto) {
 
         try {
@@ -53,7 +57,7 @@ public class ApiController {
      * @param managementId
      * @return
      ****************************************************/
-    @GetMapping("/api/v1/search/{managementId}")
+    @GetMapping("/search/{managementId}")
     public SearchResponseDto searchFromManagementId(@PathVariable String managementId) {
 
         // 관리번호가 비어있거나 길이가 20이 아니면 유효값이 아님
@@ -84,7 +88,7 @@ public class ApiController {
      * @param cancelReqeustDto
      * @return
      ****************************************************/
-    @PostMapping("/api/v1/cancel")
+    @PostMapping("/cancel")
     public CancelResponseDto cancel(@RequestBody CancelReqeustDto cancelReqeustDto) {
 
         try {

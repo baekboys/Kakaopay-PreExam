@@ -12,7 +12,10 @@ import java.util.Base64;
 public class KISASeedEncryptor {
 
     private final static String CHARSET = "utf-8";
+
+    // 사용자가 지정하는 입력 키 (반드시 16 bytes)
     private final static String PBUserKey = "kakaopaypreexam!";
+    // 사용자가 지정하는 초기화 벡터 (반드시 16 bytes)
     private final static String DEFAULT_IV = "1234567890987654";
 
     private final static byte pbUserKey[] = PBUserKey.getBytes();
