@@ -1,5 +1,7 @@
 package com.kakaopay.card.service;
 
+import com.kakaopay.card.Exception.BizExceptionType;
+import com.kakaopay.card.Exception.SearchBizException;
 import com.kakaopay.card.common.encrypt.KISASeedEncryptor;
 import com.kakaopay.card.domain.PaymentType;
 import com.kakaopay.card.domain.cardinfo.CardInfoRepository;
@@ -56,9 +58,13 @@ public class PaymentServiceTest {
         String paymentId = "XXXXXXXXXXXXXXXXXXXX";
         String cancelId = "";
 
-        String cardnum = KISASeedEncryptor.encrypt("1234567890123456");
-        String expired = KISASeedEncryptor.encrypt("1125");
-        String cvc = KISASeedEncryptor.encrypt("777");
+        String plainCardNum = "1234567890123456";
+        String plainExpired = "1125";
+        String plainCvc = "777";
+
+        String cardnum = KISASeedEncryptor.encrypt(plainCardNum);
+        String expired = KISASeedEncryptor.encrypt(plainExpired);
+        String cvc = KISASeedEncryptor.encrypt(plainCvc);
         String installment = "0";
         String amount = "100000";
         String vat = "10000";
@@ -83,9 +89,9 @@ public class PaymentServiceTest {
         //then
         assertThat(searchResponseDto.getPaymentType()).isEqualTo(paymentType.getTypeKorName());
         assertThat(searchResponseDto.getManagementId()).isEqualTo(managementId1);
-        assertThat(searchResponseDto.getCardNum().length()).isEqualTo(cardnum.length());
-        assertThat(searchResponseDto.getExpired()).isEqualTo(expired);
-        assertThat(searchResponseDto.getCvc()).isEqualTo(cvc);
+        assertThat(searchResponseDto.getCardNum().length()).isEqualTo(plainCardNum.length());
+        assertThat(searchResponseDto.getExpired()).isEqualTo(plainExpired);
+        assertThat(searchResponseDto.getCvc()).isEqualTo(plainCvc);
         assertThat(searchResponseDto.getAmount()).isEqualTo(amount);
         assertThat(searchResponseDto.getVat()).isEqualTo(vat);
     }
@@ -99,9 +105,13 @@ public class PaymentServiceTest {
         String paymentId = "XXXXXXXXXXXXXXXXXXXX";
         String cancelId = "";
 
-        String cardnum = KISASeedEncryptor.encrypt("1234567890123456");
-        String expired = KISASeedEncryptor.encrypt("1125");
-        String cvc = KISASeedEncryptor.encrypt("777");
+        String plainCardNum = "1234567890123456";
+        String plainExpired = "1125";
+        String plainCvc = "777";
+
+        String cardnum = KISASeedEncryptor.encrypt(plainCardNum);
+        String expired = KISASeedEncryptor.encrypt(plainExpired);
+        String cvc = KISASeedEncryptor.encrypt(plainCvc);
         String installment = "0";
         String amount = "100000";
         String vat = "10000";
@@ -121,10 +131,18 @@ public class PaymentServiceTest {
         String managementId1 = "ZZZZZZZZZZZZZZZZZZZZ";
 
         //when
-        SearchResponseDto searchResponseDto = paymentService.search(managementId1);
+        BizExceptionType bizExceptionType = null;
+        SearchResponseDto searchResponseDto = null;
+        try {
+            searchResponseDto = paymentService.search(managementId1);
+        } catch (SearchBizException se) {
+            bizExceptionType = se.getBizExceptionType();
+        }
 
         //then
-        assertThat(searchResponseDto.getManagementId()).isNull();
+        assertThat(searchResponseDto).isNull();
+        assertThat(bizExceptionType).isNotNull();
+        assertThat(bizExceptionType).isEqualTo(BizExceptionType.DATA_NOT_FONUD);
     }
 
     @Test

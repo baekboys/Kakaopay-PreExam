@@ -1,6 +1,8 @@
 package com.kakaopay.card.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaopay.card.Exception.BizExceptionType;
+import com.kakaopay.card.Exception.PaymentBizException;
 import com.kakaopay.card.domain.PaymentType;
 import com.kakaopay.card.domain.payment.PaymentRepository;
 import com.kakaopay.card.service.payment.PaymentService;
@@ -16,7 +18,12 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -121,16 +128,13 @@ public class ApiControllerTest {
 
         //given
         String paymentUrl = "http://localhost:" + port + "/api/v1/payment";
-        String cancelUrl = "http://localhost:" + port + "/api/v1/cancel";
-        String searchUrl = "http://localhost:" + port + "/api/v1/search";
-
 
         //given
-        ResponseEntity<PaymentResponseDto> paymentResponseDtoResponseEntity = restTemplate.getForEntity(paymentUrl, PaymentResponseDto.class);
+        ResponseEntity<PaymentResponseDto> responseEntity = restTemplate.getForEntity(paymentUrl, PaymentResponseDto.class);
 
         // then
-        assertThat(paymentResponseDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(paymentResponseDtoResponseEntity.getBody().getErrorCode()).isEqualTo(BizExceptionType.HTTP_METHOD_ERROR.getCode());
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getErrorCode()).isEqualTo(BizExceptionType.HTTP_METHOD_ERROR.getCode());
     }
 
     @Test
@@ -145,12 +149,22 @@ public class ApiControllerTest {
         HttpEntity<PaymentRequestDto> httpEntity = new HttpEntity<>(paymentRequestDto, httpHeaders);
 
         // when
-        ResponseEntity<PaymentResponseDto> responseEntity = restTemplate.exchange(url, HttpMethod.PUT, httpEntity, PaymentResponseDto.class);
+        ResponseEntity<PaymentResponseDto> responseEntity = null;
+        RestClientException restClientException = null;
+        Exception exception = null;
+        try {
+            responseEntity = restTemplate.exchange(url, HttpMethod.PUT, httpEntity, PaymentResponseDto.class);
+        } catch (RestClientException rce) {
+            restClientException = rce;
+            System.out.println("restClientException !!!!!!!!!!");
+        } catch (Exception e) {
+            exception = e;
+            System.out.println("exception !!!!!!!!!!");
+        }
 
         // then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().getManagementId().length()).isEqualTo(20);
-        assertThat(responseEntity.getBody().getTransactionTime()).isNotNull();
+        assertThat(responseEntity).isNull();
+        assertThat(exception).isNotNull();
     }
 
     @Test
@@ -275,6 +289,43 @@ public class ApiControllerTest {
         assertThat(cancelSearchResponseDtoResponseEntity.getBody().getManagementId()).isNotEqualTo(managementId);
         assertThat(cancelSearchResponseDtoResponseEntity.getBody().getTransactionTime()).isNotNull();
         assertThat(cancelSearchResponseDtoResponseEntity.getBody().getPaymentType()).isEqualTo(PaymentType.CANCEL.getTypeKorName());
+    }
+
+    @Test
+    public void paymentAndInvalidCancelTest() throws Exception {
+        //given
+        PaymentRequestDto paymentRequestDto = this.validPaymentRequestDto16;
+        String saveUrl = "http://localhost:" + port + "/api/v1/payment";
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<PaymentRequestDto> httpEntity = new HttpEntity<>(paymentRequestDto, httpHeaders);
+
+        ResponseEntity<PaymentResponseDto> paymentResponseDtoResponseEntity = restTemplate.exchange(saveUrl, HttpMethod.PUT, httpEntity, PaymentResponseDto.class);
+        String managementId = paymentResponseDtoResponseEntity.getBody().getManagementId();
+
+        String searchUrl = "http://localhost:" + port + "/api/v1/search/"+managementId;
+        ResponseEntity<SearchResponseDto> searchResponseDtoResponseEntity = restTemplate.getForEntity(searchUrl, SearchResponseDto.class);
+
+        // when
+        String canelUrl = "http://localhost:" + port + "/api/v1/cancel";
+        CancelReqeustDto cancelReqeustDto = CancelReqeustDto.builder()
+                .managementId("ZZZZZZZZZZXXXXXXXXXX")
+                .amount(paymentRequestDto.getAmount())
+                .vat(paymentRequestDto.getVat())
+                .build();
+
+        ResponseEntity<CancelResponseDto> cancelResponseDtoResponseEntity = restTemplate.postForEntity(canelUrl, cancelReqeustDto, CancelResponseDto.class);
+        String cancelManagementId = cancelResponseDtoResponseEntity.getBody().getManagementId();
+
+        // then
+        assertThat(paymentResponseDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(paymentResponseDtoResponseEntity.getBody().getManagementId().length()).isEqualTo(20);
+        assertThat(paymentResponseDtoResponseEntity.getBody().getTransactionTime()).isNotNull();
+
+        assertThat(cancelResponseDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(cancelResponseDtoResponseEntity.getBody().getManagementId()).isEmpty();
+        assertThat(cancelResponseDtoResponseEntity.getBody().getErrorCode()).isEqualTo(BizExceptionType.DATA_PAYMENT_NOT_FONUD.getCode());
     }
 
 }

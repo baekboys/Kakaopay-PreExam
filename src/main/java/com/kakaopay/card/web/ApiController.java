@@ -48,7 +48,6 @@ public class ApiController {
         } catch (Exception e) {
             throw e;
         }
-
         return paymentResponseDto;
     }
 

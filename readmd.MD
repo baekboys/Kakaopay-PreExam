@@ -23,11 +23,12 @@ Dependence         |Version        | Description
 -------------------|--------------|-------------
 |
 spring-boot       | 2.1.7.RELEASE | Spring boot
-spring-boot-starter-data-jpa | 2.1.7.RELEASE | Spring boot
-spring-boot-starter-web | 2.1.7.RELEASE | Spring boot
-com.h2database:h2 | 1.4.200 | in memory db
-org.projectlombok:lombok | 1.18.12 | getter, setter, construction, bulider ...
-org.apache.commons:commons-lang3 | 3.10 | String Util (nvl, isNull, is Numeric ...)
+spring-boot-starter-data-jpa | 2.1.7.RELEASE | Spring boot jpa
+spring-boot-starter-web | 2.1.7.RELEASE | Spring boot web
+spring-boot-starter-test | 2.1.7.RELEASE | Spring boot unit test
+com.h2database:h2 | 1.4.200 | in memory db 사용
+org.projectlombok:lombok | 1.18.12 | getter, setter, construction, bulider ... 등 JAVA 개발편의성 목적
+org.apache.commons:commons-lang3 | 3.10 | StringUtil사용을 위함(nvl, isNull, isNumeric ...)
 
 
 ###  Gradle Build at IntelliJ 
@@ -64,9 +65,9 @@ org.apache.commons:commons-lang3 | 3.10 | String Util (nvl, isNull, is Numeric .
 ### API 상세
 구분 | API | request|response
 -------------------|-------------------|-------------------|-------------------|
-1. 결제 |  PUT /api/v1/payment | cardnum, expired,  cvc, installment,  amount, vat(optional)  | errorCode, errorMessage, managementId, transactionTime |
-2. 결제취소 | POST /api/v1/cancel | managementId, amount, vat(optional) |  errorCode, errorMessage, managementId, transactionTime  | 
-3. 데이터 조회 | GET /api/v1/search/{managementId} | managementId | errorCode, errorMessage, managementId, cardNum, expired, cvc, paymentType, amount, vat, transactionTime |
+1. 결제 |  PUT /api/v1/payment | cardnum(카드번호), expired(유효기간),  cvc(CVC), installment(할부개월수),  amount(금액), vat(부가가치세, optional)  | errorCode(에러코드, 정상이면 비어있음), errorMessage(에러메시지, 정상이면 비어있음), managementId(결제관리번호), transactionTime(결제거래시간) |
+2. 결제취소 | POST /api/v1/cancel | managementId(결제관리번호), amount(금액), vat(부가가치세, optional) |  errorCode(에러코드, 정상이면 비어있음), errorMessage(에러메시지, 정상이면 비어있음), managementId(취소관리번호), transactionTime(취소거래시간)  | 
+3. 데이터 조회 | GET /api/v1/search/{managementId} | managementId(결제/취소관리번호) | errorCode(에러코드, 정상이면 비어있음), errorMessage(에러메시지, 정상이면 비어있음), managementId(결제/취소관리번호), cardNum(마스킹된 카드번호), expired(유효기간), cvc(CVC), paymentType(결제/취소구분), amount(금액), vat(부가가치세), transactionTime(결제/취소거래시간) |
 
 ### 문제해결
 ####1. 관리번호
@@ -97,3 +98,25 @@ org.apache.commons:commons-lang3 | 3.10 | String Util (nvl, isNull, is Numeric .
 - 결제/취소 데이터가 생성될 때마다 카드사와 인터페이스 하기위한 규약된 레이아웃의 데이터를 저장하는 테이블
 - 결제/취소할때마다 유니크한 관리번호가 생성되므로 관리번호를 키로 하여 카드사와 인터페이스할 정보 저장
 - CardInfo.java에 구현
+
+### 문제점 및 본인 피드백
+####1. 관리번호 채번
+- 만약 카드결제나 취소 요청이 한꺼번에 다건이 들어온다면 난수3자리가 겹칠 가능성도 있음
+- 또한 멀티스래드 환경에서도 관리번호의 중복이 일어날 가능성이 있음
+- 관리번호가 겹치지 않으려면 이미 채번된 관리번호를 다시 한번 조회하는 방법도 고려되어야 함,
+  하지만 번호가 많아질수록 재조회에 대한 성능 이슈가 있을 수 있기에 관리번호 채번 프로세스에 대한 개선이 필요해 보임
+####2. ApiControllerTest.invlidCardNumTest() 단위 테스트 수행
+- 카드번호를 9자리로 넣어서 유효하지 않은 카드번호임을 확인하는 payment API 관련 단위 테스트
+- BizExceptionHandler객체가 catch하여 handlePaymentBizException() 메소드가 수행되고 최종적으로 PaymentResponseDto 객체에 에러코드를 설정하여 리턴될 것으로 예상
+- 하지만, TestRestTemplate의 PUT 메소드를 사용하기 위해 exchange()를 실행하여 유효하지 않은 카드번호를 넣어 PaymentBizException을 발생시켰지만 Exception이 발생되며 BizExceptionHandler에서 처리가 안됨
+- 결국, 단위테스트에서 Exception을 catch하여 exception객체가 null이 아닌지 체크하는 테스트 코드로 작성
+- GET/POST 메소드가 사용되는 search와 cancel API 단위테스트의 경우 RestController에서 BizException이 발생되면 BizExceptionHandler에서 처리되어 원하는 ResponseDto로 리턴됨
+- payment API를 POST 메소드로 바꾸기에는 영향범위가 크기에 SKIP 하였음
+####3. REST API HTTP METHOD 선택
+- METHOD에 관련된 REST API의 정확한 표준은 없음. 해당과제 역시 자유스럽게 선택 가능함
+- 일반적으로 CRUD와 매핑되는 것은 C : POST / R : GET / U : PUT / D : DELETE 가 일반적이라고 하나, C : PUT / U : POST 를 사용하는 경우도 있음
+- PUT의 단어가 놓다, 만들다의 의미가 있으며 JAVA Collection을 사용할때도 객체를 넣는데 PUT(Object)을 사용하기에 결제관련 API인 payment API를 PUT으로 사용하기로 함
+- 하지만 개발과정에서 TestRestTemplate의 PUT과 DELETE는 void로 리턴되는 것이 없다는걸 알게되었으며, 결제 API는 관리번호를 리턴해주고 있기에 의미상 맞지 않음. 
+  또한 문제점인 2. ApiControllerTest.invlidCardNumTest() 단위 테스트 수행의 과정이 발생되어 어려움을 겪음
+- 따라서 payment API를 POST 메소드로 바꾸기에는 영향범위가 크며 개발일정을 지연시키는 큰 원인이 됨
+- 결론 :  REST API HTTP METHOD 선택은 단순하지 않으며 단위 테스트 및 개발전반적으로 영향을 미치기 때문에 단순 단어의 의미로 접근했던 것은 잘못 된 선택

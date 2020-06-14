@@ -5,9 +5,9 @@ import lombok.*;
 @Getter
 public class PaymentResponseDto extends ResponseDto {
     // 관리번호
-    private String managementId;
+    private final String managementId;
     // 거래시간
-    private String transactionTime;
+    private final String transactionTime;
 
     @Builder
     public PaymentResponseDto(String errorCode, String errorMessage, String managementId, String transactionTime) {
