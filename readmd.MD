@@ -135,6 +135,44 @@ KakaopayPreExam
 ####5. DataBase 
 - JPA(Java Persistence API) 사용 : iBatis나 MyBatis와 같은 Mapper 대신 JAVA 표준 ORM(Object Relation Mapping)인 JPA를 활용하여 SQL보다는 JAVA에만 집중
 - h2 DBMS 사용 : 인메모리 데이터베이스, dependencies만 넣어주면 바로 사용 가능, API 기동시 초기화되기에 테스트로 적합
+####6. 결제 프로세스(payment API)
+1) RequestDto의 validation 체크
+2) vat가 비어있으면 자동계산 : CalcUtil.getVatFromAmount()
+3) 결제관리번호 20자리 채번 : ManagementIdGenerator.getManagementIdByPaymentTypeAndCardNum()
+4) 카드번호, 유효기간, CVC는 암호화 : KISASeedEncryptor.encrypt()
+5) 결제정보 저장을 위한 Payment Entity를 생성
+6) Spring-JPA를 통해 Payment 데이터 저장
+7) "카드번호,유효기간,CVC" 형태로 암호화하여 String객체에 저장
+8) 결제정보를 기반으로 TransactionDto 객체 생성
+9) TransactionDto객체를 이용하여 450자리의 카드사 정보 문자열 생성 : CardInfoDataBuider.getCardInfoDataByTransactionDto()
+10) 카드사 정보 저장을 위한 CardInfo Entity를 생성
+11) Spring-JPA를 통해 CardInfo 데이터 저장
+12) PaymentResponseDto 객체생성하여 최종 리턴
+####7. 조회 프로세스(search API)
+1) 관리번호의 validation 체크
+2) 취소관리번호(cancelId)에 데이터가 있는지 조회 : paymentRepository.findByCancelId()
+3) 데이터가 없으면 결제관리번호(paymentId)에 결제건으로 데이터가 있는지 조회 : paymentRepository.findByPaymentIdAndPaymentType()
+4) 데이터가 없으면 BizExceptionType.DATA_NOT_FONUD를 type으로 가지는 SearchBizException 발생
+5) 데이터가 있으면 카드번호는 복호화 후 마스킹 처리 : MaskingUtil.getMaskingCardNum(KISASeedEncryptor.decrypt(카드번호))
+6) 유효기간, CVC 복호화
+7) 결제타입, 금액, 부가가치세, 거래시간를을 String으로 변환
+8) SearchResponseDto 객체 생성하여 최종 리턴
+####8. 취소 프로세스(cancel API)
+1) CancelReqeustDto의 validation 체크
+2) 결제관리번호(paymentId)에 결제건으로 데이터가 있는지 조회 : paymentRepository.findByPaymentIdAndPaymentType()
+3) 데이터가 없으면 취소를 할 수 없으므로 BizExceptionType.DATA_PAYMENT_NOT_FONUD를 type으로 가지는 CancelBizException 발생 
+4) 결제관리번호(paymentId)의 취소 데이터가 있는지 조회 : paymentRepository.findByPaymentIdAndPaymentType()
+5) 취소 데이터가 있으면 이미 취소된 건이므로 진행불가하여 BizExceptionType.CANCEL_FINISHED를 type으로 가지는 CancelBizException 발생
+6) 취소 데이터가 없으면 취소 가능여부 체크 : 결제금액 < 취소금액, 취소금액 < 취소부가가치세
+7) 결제타입은 취소(PAYMENT), 할부개월수는 00으로 세팅
+8) 취소관리번호(cancelId) 채번
+9) 취소정보 저장을 위한 Payment Entity를 생성, 이때 카드번호, 유효기간, CVC는 암호화
+10) Spring-JPA를 통해 Payment 데이터 저장
+11) 취소정보를 기반으로 TransactionDto 객체 생성
+12) TransactionDto객체를 이용하여 450자리의 카드사 정보 문자열 생성 : CardInfoDataBuider.getCardInfoDataByTransactionDto()
+13) 카드사 정보 저장을 위한 CardInfo Entity를 생성
+14) Spring-JPA를 통해 CardInfo 데이터 저장
+15) CancelResponseDto 객체생성하여 최종 리턴
 
 ### 테이블설계
 ####1. Payment
